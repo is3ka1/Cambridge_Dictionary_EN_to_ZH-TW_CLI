@@ -214,3 +214,17 @@ class SimpleTemplate:
     def render(self):
         assert isinstance(self.item, dict)
         return '\n'.join(self._flatten_dict(self.item))
+
+if __name__ == "__main__":
+    print('A Cambridge Dictionaey CLI')
+    print('=' * 30)
+
+    while True:
+        word = input('query a word: ')
+        print('-' * 30)
+        
+        item = Dictionary.query(word)
+        output = SimpleTemplate(item).render()
+        print(output)
+
+        print('-' * 30)
