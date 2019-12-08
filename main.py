@@ -31,11 +31,10 @@ class Dictionary:
             return cls.parse_dictionary_items(resp)
 
         elif category == 'spellcheck':
-            print('spellcheck')
+            return cls.parse_spellcheck_items(resp)
+
         else:
             raise Exception("not the expect category")  # test
-
-        return resp
 
     @classmethod
     def parse_dictionary_items(cls, response):
@@ -135,4 +134,26 @@ class Dictionary:
                 }
                 for entry in selector.css('.dbrowse div .entry_title .results .base')
             ]
+        }
+
+    @classmethod
+    def parse_spellcheck_items(cls, response):
+        selector = Selector(text=response.text)
+        content_part = selector.xpath(
+            "/html/body/div[2]/div/div/div[2]/div[3]/div[1]/div[1]")
+
+        return {
+            'title': ''.join(content_part.css('h1 ::text').getall()),
+            'description': [
+                ''.join(p.css('::text').getall())
+                for p in content_part.css('* > p')
+            ],
+            'recommend list': [
+                {
+                    'word': ''.join(li.css('span ::text').getall()),
+                    'link': None if response.ok else li.xpath('a/@href').get()
+                }
+                for li in content_part.css('* > ul > li')
+            ]
+
         }
