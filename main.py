@@ -6,38 +6,43 @@ from parsel import Selector
 
 
 class Dictionary:
-    url = "https://dictionary.cambridge.org/zht/%E6%90%9C%E7%B4%A2/direct/?datasetsearch=english-chinese-traditional&q={}"
-    headers = {
+    """A Cambridge Dictionary crawler.
+
+    querying a word at it, it will return the result (`dict`) extracting from The Cambridge Dictionary website (https://dictionary.cambridge.org)
+    """
+
+    _url = "https://dictionary.cambridge.org/zht/%E6%90%9C%E7%B4%A2/direct/?datasetsearch=english-chinese-traditional&q={}"
+    _headers = {
         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:71.0) Gecko/20100101 Firefox/71.0'
     }
 
-    category_pattern = re.compile(
+    _category_pattern = re.compile(
         r"https://dictionary.cambridge.org/zht/([^/]*)/")
 
     @classmethod
-    @lru_cache(maxsize=128)
-    def fetch_page(cls, url: str) -> requests.Response:
-        return requests.get(url, headers=cls.headers)
+    def _fetch_page(cls, url: str) -> requests.Response:
+        return requests.get(url, headers=cls._headers)
 
     @classmethod
+    @lru_cache(maxsize=128)
     def query(cls, word: str):
-        resp = cls.fetch_page(cls.url.format(word))
+        resp = cls._fetch_page(cls._url.format(word))
 
-        assert len(cls.category_pattern.search(resp.url).groups()) == 1  # test
-        category: str = cls.category_pattern.search(resp.url).groups()[0]
+        assert len(cls._category_pattern.search(resp.url).groups()) == 1  # test
+        category: str = cls._category_pattern.search(resp.url).groups()[0]
 
         # '%E8%A9%9E%E5%85%B8' is the urlencode of the Chinese word '詞典'
         if category == '%E8%A9%9E%E5%85%B8':
-            return cls.parse_dictionary_items(resp)
+            return cls._parse_dictionary_items(resp)
 
         elif category == 'spellcheck':
-            return cls.parse_spellcheck_items(resp)
+            return cls._parse_spellcheck_items(resp)
 
         else:
             raise Exception("not the expect category")  # test
 
     @classmethod
-    def parse_dictionary_items(cls, response):
+    def _parse_dictionary_items(cls, response):
         """Parse dictionary items from Cambridge Dictionary (https://dictionary.cambridge.org) 
         by using CSS selector or XPath.
         """
@@ -137,7 +142,7 @@ class Dictionary:
         }
 
     @classmethod
-    def parse_spellcheck_items(cls, response):
+    def _parse_spellcheck_items(cls, response):
         selector = Selector(text=response.text)
         content_part = selector.xpath(
             "/html/body/div[2]/div/div/div[2]/div[3]/div[1]/div[1]")
