@@ -70,66 +70,62 @@ class Dictionary:
         return {
             'entry-body_el': [
                 {
-                    'pos-header': {
-                        'di-title': entry_body_el.css('.pos-header .di-title *::text').get(),
-                        'posgram': entry_body_el.css('.pos-header .posgram *::text').get(),
-                        'uk-pron': ''.join(entry_body_el.css('.pos-header .uk .pron ::text').getall()),
-                        'us-pron': ''.join(entry_body_el.css('.pos-header .us .pron ::text').getall()),
-                    },
-                    'pos-body': {
-                        'sense': [
-                            {
-                                'sense_h': {
-                                    'header': ' '.join(sense.css('.dsense_h').xpath('*[position() < 3]/text()').getall()),
-                                    'guide_word': ' '.join(sense.css('.dsense_h .guideword span ::text').getall()),
-                                },
-                                'sense-body': {
-                                    'def_block': [
-                                        parse_def_block(def_block)
-                                        for def_block in sense.css('.sense-body > .def-block')
-                                    ],
-                                    'phrase_block': [
-                                        {
-                                            'phrase-title': ''.join(phrase_block.css('.phrase-head .phrase-title ::text').getall()),
-                                            'phrase-body': {
-                                                'def_block': [
-                                                    parse_def_block(def_block)
-                                                    for def_block in phrase_block.css('.phrase-body > .def-block')
-                                                ]
-                                            }
+                    'di-title': ''.join(entry_body_el.css('.di-title *::text').getall()),
+                    'posgram': entry_body_el.css('.pos-header .posgram *::text').get(),
+                    'uk-pron': ''.join(entry_body_el.css('.pos-header .uk .pron ::text').getall()),
+                    'us-pron': ''.join(entry_body_el.css('.pos-header .us .pron ::text').getall()),
+                    'sense': [
+                        {
+                            'sense_h': {
+                                'header': ' '.join(sense.css('.dsense_h').xpath('*[position() < 3]/text()').getall()),
+                                'guide_word': ' '.join(sense.css('.dsense_h .guideword span ::text').getall()),
+                            },
+                            'sense-body': {
+                                'def_block': [
+                                    parse_def_block(def_block)
+                                    for def_block in sense.css('.sense-body > .def-block')
+                                ],
+                                'phrase_block': [
+                                    {
+                                        'phrase-title': ''.join(phrase_block.css('.phrase-head .phrase-title ::text').getall()),
+                                        'phrase-body': {
+                                            'def_block': [
+                                                parse_def_block(def_block)
+                                                for def_block in phrase_block.css('.phrase-body > .def-block')
+                                            ]
                                         }
-                                        for phrase_block in sense.css('.sense-body .phrase-block')
-                                    ],
-                                    'more_examp': [
-                                        {
-                                            'eg': ''.join(eg.css('::text').getall()),
-                                        }
-                                        for eg in sense.css('.sense-body .daccord ul li.eg')
-                                    ]
+                                    }
+                                    for phrase_block in sense.css('.sense-body .phrase-block')
+                                ],
+                                'more_examp': [
+                                    {
+                                        'eg': ''.join(eg.css('::text').getall()),
+                                    }
+                                    for eg in sense.css('.sense-body .daccord ul li.eg')
+                                ]
 
-                                },
-                            }
-                            for sense in entry_body_el.css('.pos-body .dsense')
-                        ],
-                        'idiom': {
-                            'title': entry_body_el.css('.pos-body [class*="idiom"] ::text').get(),
-                            'items': [
-                                {
-                                    'item': ''.join(item.css('::text').getall())
-                                }
-                                for item in entry_body_el.css('.pos-body [class*="idiom"] .item')
-                            ],
-                        },
-                        'phrasal_verb': {
-                            'title': entry_body_el.css('.pos-body [class*="phrasal_verb"] h3 ::text').get(),
-                            'items': [
-                                {
-                                    'item': ''.join(item.css('::text').getall())
-                                }
-                                for item in entry_body_el.css('.pos-body [class*="phrasal_verb"] .item')
-                            ],
+                            },
                         }
+                        for sense in entry_body_el.css('.dsense')
+                    ],
+                    'idiom': {
+                        'title': entry_body_el.css('* [class*="idiom"] ::text').get(),
+                        'items': [
+                            {
+                                'item': ''.join(item.css('::text').getall())
+                            }
+                            for item in entry_body_el.css('* [class*="idiom"] .item')
+                        ],
                     },
+                    'phrasal_verb': {
+                        'title': entry_body_el.css('* [class*="phrasal_verb"] h3 ::text').get(),
+                        'items': [
+                            {
+                                'item': ''.join(item.css('::text').getall())
+                            }
+                            for item in entry_body_el.css('* [class*="phrasal_verb"] .item')
+                        ],
+                    }
                 }
                 for entry_body_el in selector.css('.entry-body .entry-body__el')
             ],
