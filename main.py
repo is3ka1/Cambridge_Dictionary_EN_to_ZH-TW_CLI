@@ -216,7 +216,11 @@ if __name__ == "__main__":
     print('=' * 30)
 
     while True:
-        word = input('query a word: ')
+        try:
+            word = input('query a word: ')
+        except EOFError:
+            print('\nquit the program ~')
+            break
         print('-' * 30)
         
         item = Dictionary.query(word)
