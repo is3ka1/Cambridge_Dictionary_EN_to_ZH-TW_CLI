@@ -212,8 +212,8 @@ class SimpleTemplate:
         return '\n'.join(self._flatten_dict(self.item))
 
 if __name__ == "__main__":
-    print('A Cambridge Dictionaey CLI')
-    print('=' * 30)
+    print('A Cambridge Dictionaey CLI\n')
+    print('=' * 30, end='\n\n')
 
     while True:
         try:
