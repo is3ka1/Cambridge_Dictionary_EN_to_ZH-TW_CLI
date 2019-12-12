@@ -161,55 +161,52 @@ class Dictionary:
 
 
 class SimpleTemplate:
-
+    
     def __init__(self, item):
         self.item = item
         self._browse_similar_word_flag = False
     
-    def _flatten_list(self, list_: list):
-        for item in list_:
-            if isinstance(item, list):
-                yield from self._flatten_list(item)
-            elif isinstance(item, dict):
-                yield from self._flatten_dict(item)
-            elif isinstance(item, str):
-                yield item
-
-    def _flatten_dict(self, dict_: dict):
-        for key, value in dict_.items():
-            if isinstance(value, list):
-                yield from self._flatten_list(value)
-            elif isinstance(value, dict):
-                yield from self._flatten_dict(value)
-            elif isinstance(value, str):
-                if value == '':
-                    continue
-                
-                if key in ('title'):
-                    yield ''
-
-                if key in ('uk-pron', 'us-pron', 'eg'):
-                    yield f'{key}: {value}'
-                elif key == 'def':
-                    yield f'\ndefination: {value}'
-                elif key == 'entry':
-                    if not self._browse_similar_word_flag:
-                        yield '\n瀏覽相似字詞: '
-                        self._browse_similar_word_flag = True
-                    
-                    yield f'  {value}'
-                elif key == 'link':
-                    yield f'  ({value})'
-
+    def _flatten(self, item):
+        if isinstance(item, list):
+            for item_ in item:
+                if isinstance(item, str):
+                    yield item_
                 else:
-                    yield value
+                    yield from self._flatten(item_)
+            
+        elif isinstance(item, dict):
+            for key, value in item.items():
+                if isinstance(value, str):
+                    if value == '':
+                        continue
 
-                if key in ('us-pron'):
-                    yield ''
+                    if key in ('title'):
+                        yield ''
+
+                    if key in ('uk-pron', 'us-pron', 'eg'):
+                        yield f'{key}: {value}'
+                    elif key == 'def':
+                        yield f'\ndefination: {value}'
+                    elif key == 'entry':
+                        if not self._browse_similar_word_flag:
+                            yield '\n瀏覽相似字詞: '
+                            self._browse_similar_word_flag = True
+                        
+                        yield f'  {value}'
+                    elif key == 'link':
+                        yield f'  ({value})'
+
+                    else:
+                        yield value
+
+                    if key in ('us-pron'):
+                        yield ''
+                else:
+                    yield from self._flatten(value)
 
     def render(self):
-        assert isinstance(self.item, dict)
-        return '\n'.join(self._flatten_dict(self.item))
+        return '\n'.join(self._flatten(self.item))
+
 
 if __name__ == "__main__":
     print('A Cambridge Dictionaey CLI\n')
